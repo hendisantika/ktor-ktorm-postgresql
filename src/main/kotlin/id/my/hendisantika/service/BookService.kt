@@ -56,4 +56,12 @@ class BookService {
 
         return affectedRecordsNumber == 1
     }
+
+    fun deleteBookById(bookId: Long): Boolean {
+        val foundBook = findBookById(bookId)
+
+        val affectedRecordsNumber = foundBook?.delete()
+
+        return affectedRecordsNumber == 1
+    }
 }
