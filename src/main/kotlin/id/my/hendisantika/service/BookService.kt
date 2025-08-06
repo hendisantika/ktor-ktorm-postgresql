@@ -6,6 +6,7 @@ import id.my.hendisantika.id.my.hendisantika.model.Books
 import org.ktorm.database.Database
 import org.ktorm.entity.add
 import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.toSet
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,4 +38,7 @@ class BookService {
 
         return affectedRecordsNumber == 1
     }
+
+    fun findAllBooks(): Set<Book> =
+        database.sequenceOf(Books).toSet()
 }
