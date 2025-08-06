@@ -47,4 +47,13 @@ class BookService {
     fun findBookById(bookId: Long): Book? =
         database.sequenceOf(Books)
             .find { book -> book.id eq bookId }
+
+    fun updateBookById(bookId: Long, bookRequest: BookRequest): Boolean {
+        val foundBook = findBookById(bookId)
+        foundBook?.name = bookRequest.name
+
+        val affectedRecordsNumber = foundBook?.flushChanges()
+
+        return affectedRecordsNumber == 1
+    }
 }
