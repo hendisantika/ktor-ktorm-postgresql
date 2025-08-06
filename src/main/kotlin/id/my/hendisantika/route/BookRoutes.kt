@@ -27,7 +27,7 @@ private fun Book?.toBookResponse(): BookResponse? =
 
 fun Application.configureBookRoutes() {
     routing {
-        route("/book") {
+        route("/books") {
             val bookService = BookService()
             createBook(bookService)
             getAllBooksRoute(bookService)
