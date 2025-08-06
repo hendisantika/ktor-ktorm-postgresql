@@ -49,3 +49,12 @@ fun Route.createBook(bookService: BookService) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse("Cannot create book"))
     }
 }
+
+fun Route.getAllBooksRoute(bookService: BookService) {
+    get {
+        val books = bookService.findAllBooks()
+            .map(Book::toBookResponse)
+
+        call.respond(message = books)
+    }
+}
