@@ -1,0 +1,12 @@
+services:
+  postgres-sandbox:
+    image: postgres:17.5-alpine3.22
+    ports:
+      - '5438:5432'
+    volumes:
+      - ./sandbox-db:/var/lib/postgresql/data
+      - ./sql/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    environment:
+      - POSTGRES_NAME=ktor_postgre
+      - POSTGRES_USER=yu71
+      - POSTGRES_PASSWORD=53cret
