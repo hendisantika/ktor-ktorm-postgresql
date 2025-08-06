@@ -85,3 +85,17 @@ fun Route.updateBookByIdRoute(bookService: BookService) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse("Cannot update book with id [$id]"))
     }
 }
+
+fun Route.deleteBookByIdRoute(bookService: BookService) {
+    delete("/{id}") {
+        val id: Long = call.parameters["id"]?.toLongOrNull()
+            ?: return@delete call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid id"))
+
+        val success = bookService.deleteBookById(id)
+
+        if (success)
+            call.respond(HttpStatusCode.NoContent)
+        else
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Cannot delete book with id [$id]"))
+    }
+}
