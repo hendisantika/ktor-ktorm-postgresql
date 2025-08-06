@@ -1,25 +1,95 @@
-# ktor-ktorm-postgresql
+# Ktor Ktorm PostgreSQL
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+A RESTful API for book management built with Ktor, Ktorm ORM, and PostgreSQL. This project demonstrates how to create a
+modern backend service using Kotlin and related technologies.
 
-Here are some useful links to get you started:
+## Technologies
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
-  to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+- **Kotlin** - Programming language
+- **Ktor 3.2.3** - Asynchronous web framework
+- **Ktorm** - Lightweight ORM framework for Kotlin
+- **PostgreSQL** - Relational database
+- **Gradle** - Build tool
+- **Docker** - Containerization
+- **Testcontainers** - Integration testing with real database instances
 
-## Features
+## Project Structure
 
-Here's a list of features included in this project:
+- `src/main/kotlin/id/my/hendisantika/`
+    - `Application.kt` - Main application entry point
+    - `config/` - Application configuration
+    - `model/` - Data models and entities
+    - `route/` - API endpoints
+    - `service/` - Business logic
 
-| Name                                               | Description                                                 |
-|----------------------------------------------------|-------------------------------------------------------------|
-| [Routing](https://start.ktor.io/p/routing-default) | Allows to define structured routes and associated handlers. |
+## API Endpoints
+
+The API provides the following endpoints for book management:
+
+| Method | Endpoint   | Description       | Request Body | Response                |
+|--------|------------|-------------------|--------------|-------------------------|
+| GET    | /book      | Get all books     | -            | Array of BookResponse   |
+| GET    | /book/{id} | Get a book by ID  | -            | BookResponse or Error   |
+| POST   | /book      | Create a new book | BookRequest  | 201 Created or Error    |
+| PATCH  | /book/{id} | Update a book     | BookRequest  | 204 No Content or Error |
+| DELETE | /book/{id} | Delete a book     | -            | 204 No Content or Error |
+
+### Data Models
+
+**BookRequest**
+
+```json
+{
+  "name": "Book Title"
+}
+```
+
+**BookResponse**
+
+```json
+{
+  "id": 1,
+  "name": "Book Title"
+}
+```
+
+## Setup and Running
+
+### Prerequisites
+
+- JDK 17 or higher
+- Docker and Docker Compose
+
+### Database Setup
+
+The project uses PostgreSQL in a Docker container. To start the database:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+
+- Start PostgreSQL on port 5438
+- Create a database named `ktor_postgres`
+- Initialize the database with the schema and sample data
+
+Database credentials:
+
+- Username: yu71
+- Password: 53cret
+
+### Running the Application
+
+To run the application:
+
+```bash
+./gradlew run
+```
+
+The server will start on http://0.0.0.0:8080
 
 ## Building & Running
-
-To build or run the project, use one of the following tasks:
 
 | Task                          | Description                                                          |
 |-------------------------------|----------------------------------------------------------------------|
@@ -31,10 +101,18 @@ To build or run the project, use one of the following tasks:
 | `run`                         | Run the server                                                       |
 | `runDocker`                   | Run using the local docker image                                     |
 
-If the server starts successfully, you'll see the following output:
+## Testing
 
-```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+The project uses Testcontainers for integration testing with a real PostgreSQL database. To run the tests:
+
+```bash
+./gradlew test
 ```
 
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## Author
+
+Hendi Santika - [@hendisantika34](https://github.com/hendisantika)
