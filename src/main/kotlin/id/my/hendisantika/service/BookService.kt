@@ -1,5 +1,7 @@
 package id.my.hendisantika.id.my.hendisantika.service
 
+import org.ktorm.database.Database
+
 /**
  * Created by IntelliJ IDEA.
  * Project : ktor-ktorm-postgresql
@@ -11,4 +13,11 @@ package id.my.hendisantika.id.my.hendisantika.service
  * Time: 10.39
  * To change this template use File | Settings | File Templates.
  */
-class BookService
+class BookService {
+    private val database = Database.connect(
+        url = "jdbc:postgresql://localhost:5438/postgres",
+        driver = "org.postgresql.Driver",
+        user = "postgres",
+        password = "postgres"
+    )
+}
