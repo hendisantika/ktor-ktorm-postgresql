@@ -58,3 +58,15 @@ fun Route.getAllBooksRoute(bookService: BookService) {
         call.respond(message = books)
     }
 }
+
+fun Route.getBookByIdRoute(bookService: BookService) {
+    get("/{id}") {
+        val id: Long = call.parameters["id"]?.toLongOrNull()
+            ?: return@get call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid id"))
+
+        bookService.findBookById(id)
+            ?.let { foundBook -> foundBook.toBookResponse() }
+            ?.let { response -> call.respond(response) }
+            ?: return@get call.respond(HttpStatusCode.BadRequest, ErrorResponse("Book with id [$id] not found"))
+    }
+}
