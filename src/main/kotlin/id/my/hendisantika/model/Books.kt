@@ -1,9 +1,9 @@
 package id.my.hendisantika.id.my.hendisantika.model
 
+import org.ktorm.entity.Entity
 import org.ktorm.schema.Table
 import org.ktorm.schema.long
 import org.ktorm.schema.varchar
-import java.awt.print.Book
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,6 +16,14 @@ import java.awt.print.Book
  * Time: 10.35
  * To change this template use File | Settings | File Templates.
  */
+
+interface Book : Entity<Book> {
+    companion object : Entity.Factory<Book>()
+
+    val id: Long?
+    var name: String
+}
+
 object Books : Table<Book>("book") {
     val id = long("id").primaryKey().bindTo(Book::id)
     val name = varchar("name").bindTo(Book::name)
