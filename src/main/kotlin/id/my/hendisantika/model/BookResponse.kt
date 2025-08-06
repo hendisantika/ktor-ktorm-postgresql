@@ -1,4 +1,4 @@
-package id.my.hendisantika.id.my.hendisantika.model
+package id.my.hendisantika.model
 
 import kotlinx.serialization.Serializable
 

@@ -1,4 +1,4 @@
-package id.my.hendisantika.id.my.hendisantika
+package id.my.hendisantika
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*

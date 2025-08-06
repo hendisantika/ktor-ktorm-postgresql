@@ -1,8 +1,8 @@
-package id.my.hendisantika.id.my.hendisantika.service
+package id.my.hendisantika.service
 
-import id.my.hendisantika.id.my.hendisantika.model.Book
-import id.my.hendisantika.id.my.hendisantika.model.BookRequest
-import id.my.hendisantika.id.my.hendisantika.model.Books
+import id.my.hendisantika.model.Book
+import id.my.hendisantika.model.BookRequest
+import id.my.hendisantika.model.Books
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.entity.add
@@ -25,8 +25,8 @@ class BookService {
     private val database = Database.connect(
         url = "jdbc:postgresql://localhost:5438/postgres",
         driver = "org.postgresql.Driver",
-        user = "postgres",
-        password = "postgres"
+        user = "yu71",
+        password = "53cret"
     )
 
     fun createBook(bookRequest: BookRequest): Boolean {

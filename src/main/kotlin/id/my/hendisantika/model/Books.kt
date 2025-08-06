@@ -1,4 +1,4 @@
-package id.my.hendisantika.id.my.hendisantika.model
+package id.my.hendisantika.model
 
 import org.ktorm.entity.Entity
 import org.ktorm.schema.Table

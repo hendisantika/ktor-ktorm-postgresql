@@ -7,6 +7,6 @@ services:
       - ./sandbox-db:/var/lib/postgresql/data
       - ./sql/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     environment:
-      - POSTGRES_NAME=ktor_postgre
+      - POSTGRES_DB=ktor_postgres
       - POSTGRES_USER=yu71
       - POSTGRES_PASSWORD=53cret

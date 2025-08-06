@@ -1,7 +1,8 @@
-package id.my.hendisantika.id.my.hendisantika.config
+package id.my.hendisantika.config
 
-import io.ktor.serialization.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
 
 /**
  * Created by IntelliJ IDEA.
