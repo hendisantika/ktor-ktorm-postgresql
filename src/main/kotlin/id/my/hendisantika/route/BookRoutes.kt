@@ -2,6 +2,9 @@ package id.my.hendisantika.id.my.hendisantika.route
 
 import id.my.hendisantika.id.my.hendisantika.model.Book
 import id.my.hendisantika.id.my.hendisantika.model.BookResponse
+import id.my.hendisantika.id.my.hendisantika.service.BookService
+import io.ktor.server.application.*
+import io.ktor.server.routing.*
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,3 +19,16 @@ import id.my.hendisantika.id.my.hendisantika.model.BookResponse
  */
 private fun Book?.toBookResponse(): BookResponse? =
     this?.let { BookResponse(it.id!!, it.name) }
+
+fun Application.configureBookRoutes() {
+    routing {
+        route("/book") {
+            val bookService = BookService()
+            createBook(bookService)
+            getAllBooksRoute(bookService)
+            getBookByIdRoute(bookService)
+            updateBookByIdRoute(bookService)
+            deleteBookByIdRoute(bookService)
+        }
+    }
+}
