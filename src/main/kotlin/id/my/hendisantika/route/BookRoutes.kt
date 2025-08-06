@@ -70,3 +70,18 @@ fun Route.getBookByIdRoute(bookService: BookService) {
             ?: return@get call.respond(HttpStatusCode.BadRequest, ErrorResponse("Book with id [$id] not found"))
     }
 }
+
+fun Route.updateBookByIdRoute(bookService: BookService) {
+    patch("/{id}") {
+        val id: Long = call.parameters["id"]?.toLongOrNull()
+            ?: return@patch call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid id"))
+
+        val request = call.receive<BookRequest>()
+        val success = bookService.updateBookById(id, request)
+
+        if (success)
+            call.respond(HttpStatusCode.NoContent)
+        else
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Cannot update book with id [$id]"))
+    }
+}
