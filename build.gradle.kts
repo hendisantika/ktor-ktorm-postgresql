@@ -6,7 +6,7 @@ val ktorm_version: String by project
 val postgresql_driver_version: String by project
 
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.10"
     id("io.ktor.plugin") version "3.2.3"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.0"
 }
