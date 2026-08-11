@@ -4,9 +4,12 @@ import id.my.hendisantika.PostgresTestContainer
 import id.my.hendisantika.model.Book
 import id.my.hendisantika.model.BookRequest
 import id.my.hendisantika.model.Books
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.entity.add
@@ -20,7 +23,7 @@ class BookServiceTest : PostgresTestContainer() {
 
     private lateinit var bookService: TestBookService
 
-    @Before
+    @BeforeEach
     fun setup() {
         // Initialize the database with test schema and data
         initializeTestDatabase()

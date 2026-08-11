@@ -1,8 +1,8 @@
 package id.my.hendisantika
 
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.postgresql.PostgreSQLContainer
 import java.util.logging.Logger
 
 /**
@@ -16,7 +16,8 @@ open class PostgresTestContainer {
         private val logger = Logger.getLogger(PostgresTestContainer::class.java.name)
 
         @Container
-        private val postgresContainer = PostgreSQLContainer<Nothing>("postgres:17.5-alpine3.22").apply {
+        @JvmStatic
+        private val postgresContainer = PostgreSQLContainer("postgres:17.5-alpine3.22").apply {
             withDatabaseName("testdb")
             withUsername("testuser")
             withPassword("testpass")

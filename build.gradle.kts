@@ -5,6 +5,9 @@ val logback_version: String by project
 val ktorm_version: String by project
 val postgresql_driver_version: String by project
 
+val junit_version: String by project
+val testcontainers_version: String by project
+
 plugins {
     kotlin("jvm") version "2.4.10"
     id("io.ktor.plugin") version "3.5.2"
@@ -35,10 +38,23 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresql_driver_version")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
+    // JUnit 5
+    testImplementation(platform("org.junit:junit-bom:$junit_version"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlin_version")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // Testcontainers
-    testImplementation("org.testcontainers:testcontainers:2.0.3")
-    testImplementation("org.testcontainers:junit-jupiter:2.0.3")
-    testImplementation("org.testcontainers:postgresql:2.0.3")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:$testcontainers_version"))
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
