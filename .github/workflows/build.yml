@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 # Never let two runs stamp the README at the same time.
 concurrency:
@@ -71,7 +72,7 @@ jobs:
     # Stamps the "Last Updated" date in the README with the date of the commit
     # that triggered this run. Pushes made with GITHUB_TOKEN do not start new
     # workflow runs, and [skip ci] keeps it harmless if that ever changes.
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:
