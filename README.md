@@ -38,7 +38,8 @@ modern backend service using Kotlin and related technologies.
     - `route/BookRoutesTest.kt` - HTTP-level tests for the endpoints and their status codes
     - `service/BookServiceTest.kt` - Integration tests for the book service
 - `sql/init-db.sql` - Schema + sample data loaded on first container start
-- `compose.yml` - Local PostgreSQL service
+- `Dockerfile` - Multi-stage build of the application image (JDK 25 build, JRE 25 runtime)
+- `compose.yml` - PostgreSQL and the application service
 
 ## API Endpoints
 
@@ -89,12 +90,24 @@ The API provides the following endpoints for book management:
 - JDK 25 (the Gradle build pins a Java 25 toolchain)
 - Docker and Docker Compose (for the database and for the Testcontainers-based tests)
 
-### Database Setup
+### Running Everything with Docker Compose
 
-The project uses PostgreSQL 17.5 in a Docker container. To start the database:
+`compose.yml` defines both the database and the application, so the whole stack starts with one command:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
+```
+
+The `app` service builds from the `Dockerfile`, waits for the database healthcheck before starting, reaches
+PostgreSQL over the Compose network (`postgres-sandbox:5432`), and serves the API on http://localhost:8080. It runs
+as a non-root user. Rebuild it after changing the code with `docker compose up -d --build app`.
+
+### Database Only
+
+For local development against `./gradlew run`, start just the database:
+
+```bash
+docker compose up -d postgres-sandbox
 ```
 
 This will:
@@ -114,7 +127,7 @@ Database credentials:
 Data lives in the named Docker volume `postgres-data`. To start over from a clean database:
 
 ```bash
-docker compose down -v && docker compose up -d
+docker compose down -v && docker compose up -d postgres-sandbox
 ```
 
 ### Configuration
@@ -171,7 +184,9 @@ bytecode, so it needs a Java 25 runtime:
 java -jar build/libs/ktor-ktorm-postgresql-all.jar
 ```
 
-`buildImage` produces `build/jib-image.tar` on top of a JRE 25 base image. To run it against the Compose database:
+`buildImage` produces `build/jib-image.tar` on top of a JRE 25 base image. It is an alternative to the `Dockerfile`
+that the Compose `app` service builds from — use whichever suits you. To run the JIB image against the Compose
+database:
 
 ```bash
 docker load -i build/jib-image.tar

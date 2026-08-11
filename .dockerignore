@@ -1,0 +1,11 @@
+.git
+.github
+.gradle
+.idea
+.kotlin
+build
+logs
+sandbox-db
+*.iml
+.DS_Store
+README.md
