@@ -51,6 +51,27 @@ class BookRoutesTest : PostgresTestContainer() {
     }
 
     @Test
+    fun `GET books returns them ordered by id`() = bookApi {
+        // Updating a row rewrites it at the end of the table's heap, so an
+        // unordered scan hands book 1 back last.
+        client.patch("/books/1") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"Rewritten, so no longer first in the heap"}""")
+        }
+        client.post("/books") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"Added last"}""")
+        }
+
+        val ids = Regex(""""id":(\d+)""")
+            .findAll(client.get("/books").bodyAsText())
+            .map { match -> match.groupValues[1].toLong() }
+            .toList()
+
+        assertEquals(ids.sorted(), ids, "Books came back as ${'$'}ids")
+    }
+
+    @Test
     fun `GET book by id returns the book`() = bookApi {
         val response = client.get("/books/1")
 

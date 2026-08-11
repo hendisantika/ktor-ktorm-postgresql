@@ -65,7 +65,8 @@ GET {{host}}/books
 Accept: application/json
 
 > {%
-    // Picked by name rather than position: /books has no ORDER BY, so row order is not guaranteed.
+    // /books comes back ordered by id, so the newest book is last; picked by name anyway,
+    // in case the file has been run more than once against the same database.
     const created = response.body.filter(book => book.name === "Dune").pop();
     client.test("the new book is in the list", function () {
         client.assert(created !== undefined, "No book named Dune in the list");

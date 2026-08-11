@@ -15,7 +15,8 @@ import org.ktorm.dsl.eq
 import org.ktorm.entity.add
 import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
-import org.ktorm.entity.toSet
+import org.ktorm.entity.sortedBy
+import org.ktorm.entity.toList
 
 class BookServiceTest : PostgresTestContainer() {
 
@@ -37,6 +38,7 @@ class BookServiceTest : PostgresTestContainer() {
         assertNotNull(books)
         assertTrue(books.isNotEmpty())
         assertEquals(3, books.size) // We expect 3 books from init-db.sql
+        assertEquals(listOf(1L, 2L, 3L), books.map { book -> book.id }) // ordered by id
     }
 
     @Test
@@ -117,8 +119,10 @@ class BookServiceTest : PostgresTestContainer() {
             return affectedRecordsNumber == 1
         }
 
-        fun findAllBooks(): Set<Book> =
-            database.sequenceOf(Books).toSet()
+        fun findAllBooks(): List<Book> =
+            database.sequenceOf(Books)
+                .sortedBy { book -> book.id }
+                .toList()
 
         fun findBookById(bookId: Long): Book? =
             database.sequenceOf(Books)

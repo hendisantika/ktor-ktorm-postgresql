@@ -8,7 +8,8 @@ import org.ktorm.dsl.eq
 import org.ktorm.entity.add
 import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
-import org.ktorm.entity.toSet
+import org.ktorm.entity.sortedBy
+import org.ktorm.entity.toList
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,8 +37,10 @@ class BookService {
         return affectedRecordsNumber == 1
     }
 
-    fun findAllBooks(): Set<Book> =
-        database.sequenceOf(Books).toSet()
+    fun findAllBooks(): List<Book> =
+        database.sequenceOf(Books)
+            .sortedBy { book -> book.id }
+            .toList()
 
     fun findBookById(bookId: Long): Book? =
         database.sequenceOf(Books)
