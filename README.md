@@ -257,6 +257,8 @@ Hendi Santika - [@hendisantika34](https://github.com/hendisantika)
 
 ## Last Updated
 
+2026-08-11
+
 [![Last commit](https://img.shields.io/github/last-commit/hendisantika/ktor-ktorm-postgresql?label=last%20commit&style=flat-square)](https://github.com/hendisantika/ktor-ktorm-postgresql/commits/main)
 
-The badge above is rendered from the repository's commit history, so this section never needs editing.
+The date is when this README was last reviewed by hand; the badge tracks the repository's commit history on its own.
