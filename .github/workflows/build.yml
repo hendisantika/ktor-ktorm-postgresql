@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+# Never let two runs stamp the README at the same time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -62,3 +66,34 @@ jobs:
 
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5.0.1
+
+  update-readme-date:
+    # Stamps the "Last Updated" date in the README with the date of the commit
+    # that triggered this run. Pushes made with GITHUB_TOKEN do not start new
+    # workflow runs, and [skip ci] keeps it harmless if that ever changes.
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Check out the branch itself, not the detached commit, so the stamp can be pushed back.
+          ref: ${{ github.ref_name }}
+
+      - name: Stamp the README with the last commit date
+        run: |
+          date=$(git log -1 --format=%cs)
+          perl -0pi -e "s/(## Last Updated\n\n)\d{4}-\d{2}-\d{2}/\${1}$date/" README.md
+
+          if git diff --quiet -- README.md; then
+            echo "README already reads $date, nothing to do."
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "docs: Stamp README last updated date as $date [skip ci] 📗🗓️🤖" -- README.md
+          git push
