@@ -68,7 +68,7 @@ fun Route.getBookByIdRoute(bookService: BookService) {
         bookService.findBookById(id)
             ?.let { foundBook -> foundBook.toBookResponse() }
             ?.let { response -> call.respond(response) }
-            ?: return@get call.respond(HttpStatusCode.BadRequest, ErrorResponse("Book with id [$id] not found"))
+            ?: return@get call.respond(HttpStatusCode.NotFound, ErrorResponse("Book with id [$id] not found"))
     }
 }
 
@@ -83,7 +83,7 @@ fun Route.updateBookByIdRoute(bookService: BookService) {
         if (success)
             call.respond(HttpStatusCode.NoContent)
         else
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Cannot update book with id [$id]"))
+            call.respond(HttpStatusCode.NotFound, ErrorResponse("Book with id [$id] not found"))
     }
 }
 
@@ -97,6 +97,6 @@ fun Route.deleteBookByIdRoute(bookService: BookService) {
         if (success)
             call.respond(HttpStatusCode.NoContent)
         else
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Cannot delete book with id [$id]"))
+            call.respond(HttpStatusCode.NotFound, ErrorResponse("Book with id [$id] not found"))
     }
 }

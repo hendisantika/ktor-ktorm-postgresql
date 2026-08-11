@@ -44,16 +44,16 @@ modern backend service using Kotlin and related technologies.
 
 The API provides the following endpoints for book management:
 
-| Method | Endpoint    | Description       | Request Body | Success Response      | Error Response          |
-|--------|-------------|-------------------|--------------|-----------------------|-------------------------|
-| GET    | /books      | Get all books     | -            | 200 + BookResponse[]  | -                       |
-| GET    | /books/{id} | Get a book by ID  | -            | 200 + BookResponse    | 400 + ErrorResponse     |
-| POST   | /books      | Create a new book | BookRequest  | 201 Created           | 400 + ErrorResponse     |
-| PATCH  | /books/{id} | Update a book     | BookRequest  | 204 No Content        | 400 + ErrorResponse     |
-| DELETE | /books/{id} | Delete a book     | -            | 204 No Content        | 400 + ErrorResponse     |
+| Method | Endpoint    | Description       | Request Body | Success Response      | Error Response              |
+|--------|-------------|-------------------|--------------|-----------------------|-----------------------------|
+| GET    | /books      | Get all books     | -            | 200 + BookResponse[]  | -                           |
+| GET    | /books/{id} | Get a book by ID  | -            | 200 + BookResponse    | 400 invalid id, 404 missing |
+| POST   | /books      | Create a new book | BookRequest  | 201 Created           | 400 + ErrorResponse         |
+| PATCH  | /books/{id} | Update a book     | BookRequest  | 204 No Content        | 400 invalid id, 404 missing |
+| DELETE | /books/{id} | Delete a book     | -            | 204 No Content        | 400 invalid id, 404 missing |
 
-> Note: a missing book or an unparsable id currently returns `400 Bad Request` with an `ErrorResponse` body rather than
-> `404 Not Found`.
+> An id that is not a number is a `400 Bad Request`; a well-formed id with no matching row is a `404 Not Found`. Both
+> carry an `ErrorResponse` body.
 
 ### Data Models
 
