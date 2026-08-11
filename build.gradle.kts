@@ -21,6 +21,18 @@ application {
     mainClass = "id.my.hendisantika.ApplicationKt"
 }
 
+kotlin {
+    // Keep local builds and CI (JDK 25) producing identical bytecode.
+    jvmToolchain(25)
+}
+
+ktor {
+    docker {
+        // The fat JAR is Java 25 bytecode, so the image needs a matching JRE.
+        jreVersion = JavaVersion.VERSION_25
+    }
+}
+
 repositories {
     mavenCentral()
 }
