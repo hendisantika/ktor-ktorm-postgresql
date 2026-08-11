@@ -35,7 +35,8 @@ modern backend service using Kotlin and related technologies.
     - `service/BookService.kt` - Business logic
 - `src/main/resources/` - `application.yaml`, `logback.xml`
 - `src/test/kotlin/id/my/hendisantika/`
-    - `PostgresTestContainer.kt` - Starts a PostgreSQL container for tests
+    - `PostgresTestContainer.kt` - Starts a PostgreSQL container for tests and resets its schema
+    - `route/BookRoutesTest.kt` - HTTP-level tests for the endpoints and their status codes
     - `service/BookServiceTest.kt` - Integration tests for the book service
 - `sql/init-db.sql` - Schema + sample data loaded on first container start
 - `compose.yml` - Local PostgreSQL service
@@ -184,8 +185,12 @@ docker run --rm -p 8080:8080 \
 ## Testing
 
 The project uses Testcontainers for integration testing with a real PostgreSQL database, so Docker must be running.
-Each test re-creates the `book` table from `src/test/resources/init-test-db.sql`, so tests are independent of each
-other and of your local database.
+The container is started once per test JVM, and each test re-creates the `book` table from
+`src/test/resources/init-test-db.sql`, so tests are independent of each other and of your local database.
+
+- `BookServiceTest` covers the Ktorm data access
+- `BookRoutesTest` drives the routes over HTTP with `testApplication`, pinning the response codes (including 404 for a
+  missing book)
 
 ```bash
 ./gradlew test

@@ -16,9 +16,7 @@ import org.ktorm.entity.add
 import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.toSet
-import org.testcontainers.junit.jupiter.Testcontainers
 
-@Testcontainers
 class BookServiceTest : PostgresTestContainer() {
 
     private lateinit var bookService: TestBookService
@@ -28,32 +26,6 @@ class BookServiceTest : PostgresTestContainer() {
         // Initialize the database with test schema and data
         initializeTestDatabase()
         bookService = TestBookService()
-    }
-
-    private fun initializeTestDatabase() {
-        val connection = java.sql.DriverManager.getConnection(
-            System.getProperty("DB_URL"),
-            System.getProperty("DB_USER"),
-            System.getProperty("DB_PASSWORD")
-        )
-
-        connection.use { conn ->
-            // First clean the database
-            conn.createStatement().use { stmt ->
-                stmt.execute("DROP TABLE if EXISTS book")
-            }
-
-            // Then initialize with fresh data
-            val scriptContent =
-                javaClass.classLoader.getResourceAsStream("init-test-db.sql")?.bufferedReader()?.readText()
-            if (scriptContent != null) {
-                conn.createStatement().use { stmt ->
-                    stmt.execute(scriptContent)
-                }
-            } else {
-                throw RuntimeException("Could not load init-test-db.sql")
-            }
-        }
     }
 
     @Test
