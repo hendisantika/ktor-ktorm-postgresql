@@ -1,9 +1,9 @@
 package id.my.hendisantika.service
 
+import id.my.hendisantika.config.DatabaseFactory
 import id.my.hendisantika.model.Book
 import id.my.hendisantika.model.BookRequest
 import id.my.hendisantika.model.Books
-import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.entity.add
 import org.ktorm.entity.find
@@ -22,12 +22,7 @@ import org.ktorm.entity.toSet
  * To change this template use File | Settings | File Templates.
  */
 class BookService {
-    private val database = Database.connect(
-        url = "jdbc:postgresql://localhost:5438/postgres",
-        driver = "org.postgresql.Driver",
-        user = "yu71",
-        password = "53cret"
-    )
+    private val database = DatabaseFactory.database
 
     fun createBook(bookRequest: BookRequest): Boolean {
         val newBook = Book {

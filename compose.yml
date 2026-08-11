@@ -1,12 +1,20 @@
 services:
   postgres-sandbox:
-    image: postgres:17.5-alpine3.22
+    image: postgres:18.4-alpine3.24
     ports:
       - '5438:5432'
     volumes:
-      - ./sandbox-db:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./sql/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     environment:
       - POSTGRES_DB=ktor_postgres
       - POSTGRES_USER=yu71
       - POSTGRES_PASSWORD=53cret
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U yu71 -d ktor_postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
