@@ -1,7 +1,6 @@
 # Ktor Ktorm PostgreSQL
 
 [![Build and Test](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/build.yml/badge.svg)](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/build.yml)
-[![Java CI with Gradle](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/gradle.yml/badge.svg)](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/gradle.yml)
 
 A RESTful API for book management built with Ktor, Ktorm ORM, and PostgreSQL. This project demonstrates how to create a
 modern backend service using Kotlin and related technologies.
@@ -200,15 +199,11 @@ The HTML test report is written to `build/reports/tests/test/index.html`.
 
 ## CI/CD
 
-This project uses GitHub Actions for continuous integration:
+A single workflow, **Build and Test** (`.github/workflows/build.yml`), runs on push and pull request to `main`:
 
-- **Build and Test** (`.github/workflows/build.yml`): JDK 25 on Ubuntu, Gradle caching, runs `./gradlew build` on
-  push/PR to `main`, and uploads the test report as a build artifact
-- **Java CI with Gradle** (`.github/workflows/gradle.yml`): JDK 25 build plus dependency submission, which feeds the
-  dependency graph for Dependabot alerts
-
-Both workflows run the full test suite, including the Testcontainers integration tests (Docker is preinstalled on the
-GitHub-hosted Ubuntu runners).
+- `build`: JDK 25 on Ubuntu with Gradle caching, runs `./gradlew build` — including the Testcontainers integration
+  tests, since Docker is preinstalled on the GitHub-hosted Ubuntu runners — and uploads the test report as an artifact
+- `dependency-submission`: submits the dependency graph that feeds Dependabot alerts (push events only)
 
 ## License
 
