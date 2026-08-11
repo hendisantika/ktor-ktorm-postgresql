@@ -16,6 +16,7 @@ modern backend service using Kotlin and related technologies.
 | **PostgreSQL JDBC**| 42.7.13 | JDBC driver                                        |
 | **Logback**        | 1.5.38  | Logging backend                                    |
 | **Gradle**         | 9.3.1   | Build automation (via the Gradle wrapper)          |
+| **Shadow**         | 9.6.1   | Builds the executable fat JAR                      |
 | **JDK**            | 25      | Build + runtime target (pinned Gradle toolchain)   |
 | **JUnit**          | 5.14.4  | Test framework (JUnit Jupiter)                     |
 | **Testcontainers** | 2.0.5   | Integration testing against a real database        |
@@ -195,15 +196,16 @@ The same requests are available as [`app.http`](app.http), runnable straight fro
 
 ## Building & Running
 
-| Task                                    | Description                                                          |
-|-----------------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`                        | Run the tests                                                        |
-| `./gradlew build`                       | Build everything (compile + test)                                    |
-| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `./gradlew run`                         | Run the server                                                       |
-| `./gradlew runDocker`                   | Run using the local docker image                                     |
+| Task                    | Description                                                          |
+|-------------------------|----------------------------------------------------------------------|
+| `./gradlew test`        | Run the tests                                                        |
+| `./gradlew build`       | Build everything (compile + test)                                    |
+| `./gradlew shadowJar`   | Build an executable JAR of the server with all dependencies included |
+| `./gradlew run`         | Run the server                                                       |
+| `./gradlew runShadow`   | Run the server from the fat JAR                                      |
+
+Container images come from the [`Dockerfile`](Dockerfile) — see
+[Running Everything with Docker Compose](#running-everything-with-docker-compose).
 
 The fat JAR is written to `build/libs/ktor-ktorm-postgresql-all.jar` and can be started directly. It is Java 25
 bytecode, so it needs a Java 25 runtime:
@@ -212,16 +214,13 @@ bytecode, so it needs a Java 25 runtime:
 java -jar build/libs/ktor-ktorm-postgresql-all.jar
 ```
 
-`buildImage` produces `build/jib-image.tar` on top of a JRE 25 base image. It is an alternative to the `Dockerfile`
-that the Compose `app` service builds from — use whichever suits you. To run the JIB image against the Compose
-database:
+To run the Compose-built image by hand against the database on the host:
 
 ```bash
-docker load -i build/jib-image.tar
 docker run --rm -p 8080:8080 \
   -e DB_URL="jdbc:postgresql://host.docker.internal:5438/ktor_postgres" \
   -e DB_USER=yu71 -e DB_PASSWORD=53cret \
-  ktor-docker-image:latest
+  ktor-ktorm-postgresql-app:latest
 ```
 
 ## Testing

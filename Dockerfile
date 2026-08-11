@@ -13,8 +13,8 @@ RUN ./gradlew --version --no-daemon
 COPY settings.gradle.kts build.gradle.kts gradle.properties ./
 COPY src ./src
 
-# buildFatJar does not run the tests: they need their own Docker daemon for Testcontainers.
-RUN ./gradlew buildFatJar --no-daemon
+# shadowJar does not run the tests: they need their own Docker daemon for Testcontainers.
+RUN ./gradlew shadowJar --no-daemon
 
 # ---- runtime stage ----
 FROM eclipse-temurin:25-jre

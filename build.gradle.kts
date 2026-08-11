@@ -10,7 +10,8 @@ val testcontainers_version: String by project
 
 plugins {
     kotlin("jvm") version "2.4.10"
-    id("io.ktor.plugin") version "3.5.2"
+    application
+    id("com.gradleup.shadow") version "9.6.1"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.4.10"
 }
 
@@ -26,11 +27,10 @@ kotlin {
     jvmToolchain(25)
 }
 
-ktor {
-    docker {
-        // The fat JAR is Java 25 bytecode, so the image needs a matching JRE.
-        jreVersion = JavaVersion.VERSION_25
-    }
+tasks.shadowJar {
+    // The image is built from the Dockerfile, which copies this exact name.
+    archiveFileName = "${project.name}-all.jar"
+    mergeServiceFiles()
 }
 
 repositories {
