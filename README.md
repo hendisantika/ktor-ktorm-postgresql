@@ -1,38 +1,59 @@
 # Ktor Ktorm PostgreSQL
 
+[![Build and Test](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/build.yml/badge.svg)](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/build.yml)
+[![Java CI with Gradle](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/gradle.yml/badge.svg)](https://github.com/hendisantika/ktor-ktorm-postgresql/actions/workflows/gradle.yml)
+
 A RESTful API for book management built with Ktor, Ktorm ORM, and PostgreSQL. This project demonstrates how to create a
 modern backend service using Kotlin and related technologies.
 
 ## Technologies
 
-- **Kotlin 2.2.0** - Modern programming language for the JVM
-- **Ktor 3.2.3** - Asynchronous web framework built by JetBrains
-- **Ktorm** - Lightweight ORM framework for Kotlin with SQL DSL
-- **PostgreSQL 17.5** - Advanced open-source relational database
-- **Gradle** - Powerful build automation tool
-- **Docker & Docker Compose** - Containerization and service orchestration
-- **Testcontainers 1.19.7** - Integration testing with real database instances
+| Technology         | Version | Purpose                                            |
+|--------------------|---------|----------------------------------------------------|
+| **Kotlin**         | 2.4.10  | Modern programming language for the JVM            |
+| **Ktor**           | 3.5.2   | Asynchronous web framework built by JetBrains      |
+| **Ktorm**          | 4.2.1   | Lightweight ORM framework for Kotlin with SQL DSL  |
+| **PostgreSQL**     | 17.5    | Advanced open-source relational database           |
+| **PostgreSQL JDBC**| 42.7.13 | JDBC driver                                        |
+| **Logback**        | 1.5.38  | Logging backend                                    |
+| **Gradle**         | 9.3.1   | Build automation (via the Gradle wrapper)          |
+| **JDK**            | 25      | Build + runtime target (pinned Gradle toolchain)   |
+| **JUnit**          | 5.14.4  | Test framework (JUnit Jupiter)                     |
+| **Testcontainers** | 2.0.5   | Integration testing against a real database        |
+| **Docker Compose** | -       | Local PostgreSQL for development                   |
 
 ## Project Structure
 
 - `src/main/kotlin/id/my/hendisantika/`
     - `Application.kt` - Main application entry point
-    - `config/` - Application configuration
-    - `model/` - Data models and entities
-    - `route/` - API endpoints
-    - `service/` - Business logic
+    - `Routing.kt` - Sample root route
+    - `config/`
+        - `DatabaseFactory.kt` - Ktorm database connection (environment configurable)
+        - `Serialization.kt` - JSON content negotiation
+    - `model/` - Data models and entities (`Book`, `Books`, request/response DTOs)
+    - `route/BookRoutes.kt` - API endpoints
+    - `service/BookService.kt` - Business logic
+- `src/main/resources/` - `application.yaml`, `logback.xml`
+- `src/test/kotlin/id/my/hendisantika/`
+    - `PostgresTestContainer.kt` - Starts a PostgreSQL container for tests
+    - `service/BookServiceTest.kt` - Integration tests for the book service
+- `sql/init-db.sql` - Schema + sample data loaded on first container start
+- `compose.yml` - Local PostgreSQL service
 
 ## API Endpoints
 
 The API provides the following endpoints for book management:
 
-| Method | Endpoint    | Description       | Request Body | Response                |
-|--------|-------------|-------------------|--------------|-------------------------|
-| GET    | /books      | Get all books     | -            | Array of BookResponse   |
-| GET    | /books/{id} | Get a book by ID  | -            | BookResponse or Error   |
-| POST   | /books      | Create a new book | BookRequest  | 201 Created or Error    |
-| PATCH  | /books/{id} | Update a book     | BookRequest  | 204 No Content or Error |
-| DELETE | /books/{id} | Delete a book     | -            | 204 No Content or Error |
+| Method | Endpoint    | Description       | Request Body | Success Response      | Error Response          |
+|--------|-------------|-------------------|--------------|-----------------------|-------------------------|
+| GET    | /books      | Get all books     | -            | 200 + BookResponse[]  | -                       |
+| GET    | /books/{id} | Get a book by ID  | -            | 200 + BookResponse    | 400 + ErrorResponse     |
+| POST   | /books      | Create a new book | BookRequest  | 201 Created           | 400 + ErrorResponse     |
+| PATCH  | /books/{id} | Update a book     | BookRequest  | 204 No Content        | 400 + ErrorResponse     |
+| DELETE | /books/{id} | Delete a book     | -            | 204 No Content        | 400 + ErrorResponse     |
+
+> Note: a missing book or an unparsable id currently returns `400 Bad Request` with an `ErrorResponse` body rather than
+> `404 Not Found`.
 
 ### Data Models
 
@@ -53,12 +74,20 @@ The API provides the following endpoints for book management:
 }
 ```
 
+**ErrorResponse**
+
+```json
+{
+  "message": "Book with id [999] not found"
+}
+```
+
 ## Setup and Running
 
 ### Prerequisites
 
-- JDK 17 or higher
-- Docker and Docker Compose
+- JDK 25 (the Gradle build pins a Java 25 toolchain)
+- Docker and Docker Compose (for the database and for the Testcontainers-based tests)
 
 ### Database Setup
 
@@ -72,13 +101,36 @@ This will:
 
 - Start PostgreSQL on port 5438
 - Create a database named `ktor_postgres`
-- Initialize the database with the schema and sample data from `./sql/init-db.sql`
+- Initialize the schema and sample data from `./sql/init-db.sql` (only on first start, when the volume is empty)
+- Expose a healthcheck so `docker compose ps` reports when the database is ready
 
 Database credentials:
 
+- Database: ktor_postgres
 - Username: yu71
 - Password: 53cret
 - Port: 5438
+
+Data lives in the named Docker volume `postgres-data`. To start over from a clean database:
+
+```bash
+docker compose down -v && docker compose up -d
+```
+
+### Configuration
+
+The connection details default to the values in `compose.yml`, and can be overridden with environment variables (or
+JVM system properties of the same name):
+
+| Variable      | Default                                            |
+|---------------|----------------------------------------------------|
+| `DB_URL`      | `jdbc:postgresql://localhost:5438/ktor_postgres`   |
+| `DB_USER`     | `yu71`                                             |
+| `DB_PASSWORD` | `53cret`                                           |
+
+```bash
+DB_URL="jdbc:postgresql://localhost:5438/ktor_postgres" ./gradlew run
+```
 
 ### Running the Application
 
@@ -90,35 +142,68 @@ To run the application:
 
 The server will start on http://0.0.0.0:8080 and expose the REST API endpoints described above.
 
+### Trying the API
+
+```bash
+curl http://localhost:8080/books
+curl http://localhost:8080/books/1
+curl -X POST http://localhost:8080/books -H 'Content-Type: application/json' -d '{"name":"Dune"}'
+curl -X PATCH http://localhost:8080/books/4 -H 'Content-Type: application/json' -d '{"name":"Dune Messiah"}'
+curl -X DELETE http://localhost:8080/books/4
+```
+
 ## Building & Running
 
-| Task                          | Description                                                          |
-|-------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
+| Task                                    | Description                                                          |
+|-----------------------------------------|----------------------------------------------------------------------|
+| `./gradlew test`                        | Run the tests                                                        |
+| `./gradlew build`                       | Build everything (compile + test)                                    |
+| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
+| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
+| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
+| `./gradlew run`                         | Run the server                                                       |
+| `./gradlew runDocker`                   | Run using the local docker image                                     |
+
+The fat JAR is written to `build/libs/ktor-ktorm-postgresql-all.jar` and can be started directly. It is Java 25
+bytecode, so it needs a Java 25 runtime:
+
+```bash
+java -jar build/libs/ktor-ktorm-postgresql-all.jar
+```
+
+`buildImage` produces `build/jib-image.tar` on top of a JRE 25 base image. To run it against the Compose database:
+
+```bash
+docker load -i build/jib-image.tar
+docker run --rm -p 8080:8080 \
+  -e DB_URL="jdbc:postgresql://host.docker.internal:5438/ktor_postgres" \
+  -e DB_USER=yu71 -e DB_PASSWORD=53cret \
+  ktor-docker-image:latest
+```
 
 ## Testing
 
-The project uses Testcontainers for integration testing with a real PostgreSQL database. To run the tests:
+The project uses Testcontainers for integration testing with a real PostgreSQL database, so Docker must be running.
+Each test re-creates the `book` table from `src/test/resources/init-test-db.sql`, so tests are independent of each
+other and of your local database.
 
 ```bash
 ./gradlew test
 ```
 
+The HTML test report is written to `build/reports/tests/test/index.html`.
+
 ## CI/CD
 
-This project uses GitHub Actions for continuous integration and delivery:
+This project uses GitHub Actions for continuous integration:
 
-- **Build and Test**: Runs on Ubuntu with JDK 17, triggered on push/PR to main branch
-- **Java CI with Gradle**: More comprehensive workflow with JDK 21, Gradle caching, and dependency submission for
-  Dependabot alerts
+- **Build and Test** (`.github/workflows/build.yml`): JDK 25 on Ubuntu, Gradle caching, runs `./gradlew build` on
+  push/PR to `main`, and uploads the test report as a build artifact
+- **Java CI with Gradle** (`.github/workflows/gradle.yml`): JDK 25 build plus dependency submission, which feeds the
+  dependency graph for Dependabot alerts
 
-The CI pipelines automatically build the project and run all tests to ensure code quality.
+Both workflows run the full test suite, including the Testcontainers integration tests (Docker is preinstalled on the
+GitHub-hosted Ubuntu runners).
 
 ## License
 
@@ -130,4 +215,4 @@ Hendi Santika - [@hendisantika34](https://github.com/hendisantika)
 
 ## Last Updated
 
-2025-08-06
+2026-08-11
