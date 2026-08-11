@@ -158,12 +158,40 @@ The server will start on http://0.0.0.0:8080 and expose the REST API endpoints d
 ### Trying the API
 
 ```bash
-curl http://localhost:8080/books
-curl http://localhost:8080/books/1
-curl -X POST http://localhost:8080/books -H 'Content-Type: application/json' -d '{"name":"Dune"}'
-curl -X PATCH http://localhost:8080/books/4 -H 'Content-Type: application/json' -d '{"name":"Dune Messiah"}'
-curl -X DELETE http://localhost:8080/books/4
+# List every book
+curl -s http://localhost:8080/books
+# [{"id":1,"name":"The Great Gatsby"},{"id":2,"name":"To Kill a Mockingbird"},{"id":3,"name":"1984"}]
+
+# Fetch one
+curl -s http://localhost:8080/books/1
+# {"id":1,"name":"The Great Gatsby"}
+
+# Create one (201, empty body)
+curl -i -X POST http://localhost:8080/books \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Dune"}'
+
+# The new id comes from the sequence, so it is only 4 on a freshly seeded database.
+# Read it back from the list, then update and delete it:
+ID=$(curl -s http://localhost:8080/books |
+  python3 -c 'import json,sys; print([b["id"] for b in json.load(sys.stdin) if b["name"] == "Dune"][-1])')
+
+curl -i -X PATCH http://localhost:8080/books/$ID \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Dune Messiah"}'
+# HTTP/1.1 204 No Content
+
+curl -i -X DELETE http://localhost:8080/books/$ID
+# HTTP/1.1 204 No Content
+
+# Error cases
+curl -s -w ' -> %{http_code}\n' http://localhost:8080/books/999
+# {"message":"Book with id [999] not found"} -> 404
+curl -s -w ' -> %{http_code}\n' http://localhost:8080/books/abc
+# {"message":"Invalid id"} -> 400
 ```
+
+The same requests are available as [`app.http`](app.http), runnable straight from IntelliJ IDEA's HTTP client.
 
 ## Building & Running
 

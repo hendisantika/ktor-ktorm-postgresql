@@ -1,0 +1,130 @@
+### Book API — run these against http://localhost:8080 (./gradlew run, or docker compose up -d --build)
+### The requests are ordered so that "Run all requests in file" walks a full create/update/delete cycle.
+
+@host = http://localhost:8080
+
+### Get all books
+GET {{host}}/books
+Accept: application/json
+
+> {%
+    client.test("returns the seeded books", function () {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+        client.assert(response.body.length > 0, "Expected at least one book");
+    });
+%}
+
+### Get a book by id
+GET {{host}}/books/1
+Accept: application/json
+
+> {%
+    client.test("returns the first book", function () {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+        client.assert(response.body.id === 1, "Expected id 1, got " + response.body.id);
+    });
+%}
+
+### Get a book that does not exist -> 404
+GET {{host}}/books/999
+Accept: application/json
+
+> {%
+    client.test("missing book is a 404", function () {
+        client.assert(response.status === 404, "Expected 404, got " + response.status);
+    });
+%}
+
+### Get a book with a non-numeric id -> 400
+GET {{host}}/books/abc
+Accept: application/json
+
+> {%
+    client.test("unparsable id is a 400", function () {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+%}
+
+### Create a book
+POST {{host}}/books
+Content-Type: application/json
+
+{
+  "name": "Dune"
+}
+
+> {%
+    client.test("book is created", function () {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+    });
+%}
+
+### Remember the id of the book just created
+# The API answers 201 with an empty body, so read the new id back from the list.
+GET {{host}}/books
+Accept: application/json
+
+> {%
+    // Picked by name rather than position: /books has no ORDER BY, so row order is not guaranteed.
+    const created = response.body.filter(book => book.name === "Dune").pop();
+    client.test("the new book is in the list", function () {
+        client.assert(created !== undefined, "No book named Dune in the list");
+    });
+    client.global.set("bookId", created.id);
+%}
+
+### Update the book just created
+PATCH {{host}}/books/{{bookId}}
+Content-Type: application/json
+
+{
+  "name": "Dune Messiah"
+}
+
+> {%
+    client.test("book is updated", function () {
+        client.assert(response.status === 204, "Expected 204, got " + response.status);
+    });
+%}
+
+### Read the update back
+GET {{host}}/books/{{bookId}}
+Accept: application/json
+
+> {%
+    client.test("the new name was stored", function () {
+        client.assert(response.body.name === "Dune Messiah", "Got " + response.body.name);
+    });
+%}
+
+### Update a book that does not exist -> 404
+PATCH {{host}}/books/999
+Content-Type: application/json
+
+{
+  "name": "Nothing here"
+}
+
+> {%
+    client.test("updating a missing book is a 404", function () {
+        client.assert(response.status === 404, "Expected 404, got " + response.status);
+    });
+%}
+
+### Delete the book just created
+DELETE {{host}}/books/{{bookId}}
+
+> {%
+    client.test("book is deleted", function () {
+        client.assert(response.status === 204, "Expected 204, got " + response.status);
+    });
+%}
+
+### Delete a book that does not exist -> 404
+DELETE {{host}}/books/999
+
+> {%
+    client.test("deleting a missing book is a 404", function () {
+        client.assert(response.status === 404, "Expected 404, got " + response.status);
+    });
+%}
